@@ -1,0 +1,18 @@
+Domain = entity
+Repository = data access layer
+Service = business logic
+category = web api route baca json
+(
+    create contract with interface 
+    create context as parameter first
+    if create with database with relational have to support database we must using transactional case
+    add dommain category or entity
+)
+(
+    create impl category as like as contract interface 
+)
+(
+to create request dont using repository model so you just create a model to represent the request and response (web)
+)
+validasi payload untuk update dan create di service impl
+
