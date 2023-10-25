@@ -1,6 +1,7 @@
-package main
+package test
 
 import (
+	"database/sql"
 	"net/http"
 	"restful-api/app"
 	"restful-api/controller"
@@ -8,15 +9,26 @@ import (
 	"restful-api/middleware"
 	"restful-api/repository"
 	"restful-api/service"
-
-	_ "github.com/go-sql-driver/mysql"
+	"time"
 
 	"github.com/go-playground/validator"
 )
 
-func main() {
+func setupTestDB() *sql.DB {
+	db, err := sql.Open("mysql", "root@tcp(localhost:3306)/golang_test")
+	helper.PanicIfError(err)
 
-	db := app.NewDB()
+	db.SetMaxIdleConns(5)
+	db.SetMaxOpenConns(20)
+	db.SetConnMaxLifetime(60 * time.Minute)
+	db.SetConnMaxIdleTime(10 * time.Minute)
+
+	return db
+}
+
+func setupRouter() http.Handler {
+
+	db := setupTestDB()
 	validate := validator.New()
 
 	categoryRepository := repository.NewCategoryRepository()
@@ -25,11 +37,5 @@ func main() {
 
 	router := app.NewRouter(categoryController)
 
-	server := http.Server{
-		Addr:    "localhost:3000",
-		Handler: middleware.NewAuthMiddleware(router),
-	}
-
-	err := server.ListenAndServe()
-	helper.PanicIfError(err)
+	return middleware.NewAuthMiddleware(router)
 }
